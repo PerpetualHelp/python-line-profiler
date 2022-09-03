@@ -6,15 +6,25 @@
 
 # python-line-profiler (v0.0.1)
 
-`python-line-profiler` is a vscode extension to configure, run, and visualize the Python package [line_profiler](https://github.com/pyutils/line_profiler#installation).
+`python-line-profiler` is a vscode extension to configure and run [line_profiler](https://github.com/pyutils/line_profiler#installation), then visualize the results in the editor.
+
+## Contents
+
+1. [Features](#features)
+2. [Installation and Requirements](#installation-and-requirements)
+3. [Extension Settings](#extension-settings)
+3. [Known Issues](#known-issues)
+4. [Donate](#funding)
+
+<a href="https://liberapay.com/nicholas-schaub/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 
 ## Features
 
-The `python-line-profiler` works by:
-1. Selection a function or functions to profile
+To use `python-line-profiler`:
+1. Select a function or functions to profile
 2. Select a script to use for profiling
 3. Run the script
-4. Overlay the results in the editor
+4. Review the results that use inline profiling, with tooltips providing exact times
 
 ![feature X](images/highlight.png)
 
@@ -22,7 +32,7 @@ In the above example, line 92 is the brightest and therefore the most time consu
 
 A test script can be used to profile the code if it uses `unittest`.
 
-## Requirements
+## Installation and Requirements
 
 This extension requires that Python 3.7+ is installed. It is recommended that the vscode Python extension (ms-python) is installed.
 
