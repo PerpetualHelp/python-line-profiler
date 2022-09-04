@@ -12,11 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-line-profiler.registerFunction",
-    "onCommand:vscode-line-profiler.unregisterFunction",
-    "onCommand:vscode-line-profiler.registerScript",
-    "onCommand:vscode-line-profiler.unregisterScript",
-    "onCommand:vscode-line-profiler.runAllScripts"
+    "onLanguage:python"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -89,6 +85,9 @@
     "python": "cp -r ./src/extension.py ./out",
     "build": "npm run compile && npm run python"
   },
+  "extensionDependencies": [
+    "ms-python.python"
+  ],
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
