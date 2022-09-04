@@ -365,7 +365,7 @@ async def function_profile(
         # calculate the total execution time
         times = [t.time for t in fp.lines]
         total_time = sum(times)
-        max_time = math.log10(max(times))
+        max_time = math.log(max(times))
 
         output.append((fp.function_line, None, f"{total_time*10**-6:.6f}s"))
 
@@ -373,7 +373,7 @@ async def function_profile(
             output.append(
                 (
                     line.line,
-                    math.log10(line.time) / max_time,
+                    line.time if not line.time else math.log(line.time) / max_time,
                     f"{line.time}{TIME_UNITS[line.unit]}",
                 )
             )

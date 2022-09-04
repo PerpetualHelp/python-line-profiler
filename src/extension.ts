@@ -142,8 +142,17 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
 			console.log(`rgba(0,0,255,${line[1].toFixed(1)}`);
 			editor.setDecorations(vscode.window.createTextEditorDecorationType({
 				backgroundColor: `rgba(100,0,0,${line[1]})`,
-				isWholeLine: true
-			}),[{range,hoverMessage}]);
+				isWholeLine: true,
+			}),[{
+				range,
+				hoverMessage,
+				renderOptions: {
+					after: {
+						contentText: "(" + hoverMessage + ")",
+						color: "rgba(255,255,255,0.4)",
+						margin: "0px 0px 0px 25px"
+					}
+			  }}]);
 		}
 	}
 
