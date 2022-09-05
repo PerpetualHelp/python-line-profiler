@@ -4,20 +4,27 @@ import * as vscode from "vscode";
 import { IProposedExtensionAPI } from "./dependencies/vscode-python";
 
 let pyProcess;
+var decorations: vscode.TextEditorDecorationType[] = [];
+const extName = "python-line-profiler";
 
+/**
+ * Registers a function for profiling.
+ *
+ */
 async function registerFunction() {
+  const prefix = `${extName}.registerFunction`;
+  console.info(`${prefix}: Running...`);
+
+  // Get vscode selection
   let selection = vscode.window.activeTextEditor?.selection;
   var text = vscode.window.activeTextEditor?.document.getText(selection);
   var fileUri = vscode.window.activeTextEditor?.document.fileName;
-  vscode.window.showInformationMessage(
-    `Registering function: ${String(fileUri)} - ${String(text)}`
-  );
 
-  console.log(
-    `registerFunction.fileUri: ${JSON.stringify({ fileUri: String(fileUri) })}`
+  console.debug(
+    `${prefix}.fileUri: ${JSON.stringify({
+      fileUri: String(fileUri),
+    })}`
   );
-  const params = new URLSearchParams();
-  params.append("fileUri", String(fileUri));
 
   const response = await fetch(
     `http://127.0.0.1:9001/function/register?fileUri=${String(
@@ -28,27 +35,33 @@ async function registerFunction() {
       headers: { contentType: "application/json" },
     }
   );
-  const data = await response.json();
 
-  console.log(`registerFunction: ${JSON.stringify(data)}`);
+  if (response.status !== 202) {
+    console.error(`${prefix}: Response status - ${await response.status}`);
+    console.error(`${prefix}: There was an error. ${await response.text()}`);
+  } else {
+    const data = await response.json();
+    console.debug(`${prefix}: ${JSON.stringify(data)}`);
+  }
 }
 
+/**
+ * Unregister a function for profiling.
+ *
+ */
 async function unregisterFunction() {
+  const prefix = `${extName}.unregisterFunction`;
+  console.info(`${prefix}: Running...`);
+
   let selection = vscode.window.activeTextEditor?.selection;
   var text = vscode.window.activeTextEditor?.document.getText(selection);
   var fileUri = vscode.window.activeTextEditor?.document.fileName;
-  vscode.window.showInformationMessage(
-    `Registering function: ${String(fileUri)} - ${String(text)}`
-  );
 
-  console.log(
-    `unregisterFunction.fileUri: ${JSON.stringify({
+  console.debug(
+    `${prefix}: ${JSON.stringify({
       fileUri: String(fileUri),
     })}`
   );
-
-  const params = new URLSearchParams();
-  params.append("fileUri", String(fileUri));
 
   const response = await fetch(
     `http://127.0.0.1:9001/function/unregister?fileUri=${String(
@@ -59,19 +72,20 @@ async function unregisterFunction() {
       headers: { contentType: "application/json" },
     }
   );
-  const data = await response.json();
 
-  console.log(`unregisterFunction: ${JSON.stringify(data)}`);
+  if (response.status !== 202) {
+    console.error(`${prefix}: Response status - ${await response.status}`);
+    console.error(`${prefix}: There was an error. ${await response.text()}`);
+  } else {
+    const data = await response.json();
+    console.debug(`${prefix}: ${JSON.stringify(data)}`);
+  }
 }
 
 async function registerScript(fileUri: vscode.Uri) {
-  vscode.window.showInformationMessage(`Registering script: ${fileUri.fsPath}`);
-  console.log(
-    `registerScript.fileUri: ${JSON.stringify({ fileUri: fileUri.fsPath })}`
-  );
-
-  const params = new URLSearchParams();
-  params.append("fileUri", fileUri.fsPath);
+  const prefix = `${extName}.registerScript`;
+  console.info(`${prefix}: Running...`);
+  console.debug(`${prefix}: ${JSON.stringify({ fileUri: fileUri.fsPath })}`);
 
   const response = await fetch(
     `http://127.0.0.1:9001/script/register?fileUri=${fileUri.fsPath}`,
@@ -80,26 +94,20 @@ async function registerScript(fileUri: vscode.Uri) {
       headers: { contentType: "application/json" },
     }
   );
-  const data = await response.json();
 
-  console.log(`registerScript: ${JSON.stringify(data)}`);
-
-  // if (~response.ok) {
-  // 	vscode.window.showErrorMessage("There was an error registering the script.");
-  // 	console.log(response.)
-  // }
-
-  // vscode.window.showInformationMessage(`Registered!`);
+  if (response.status !== 202) {
+    console.error(`${prefix}: Response status - ${await response.status}`);
+    console.error(`${prefix}: There was an error. ${await response.text()}`);
+  } else {
+    const data = await response.json();
+    console.debug(`${prefix}: ${JSON.stringify(data)}`);
+  }
 }
 
 async function unregisterScript(fileUri: vscode.Uri) {
-  vscode.window.showInformationMessage(`Registering script: ${fileUri.fsPath}`);
-  console.log(
-    `registerScript.fileUri: ${JSON.stringify({ fileUri: fileUri.fsPath })}`
-  );
-
-  const params = new URLSearchParams();
-  params.append("fileUri", fileUri.fsPath);
+  const prefix = `${extName}.unregisterScript`;
+  console.info(`${prefix}: Running...`);
+  console.debug(`${prefix}: ${JSON.stringify({ fileUri: fileUri.fsPath })}`);
 
   const response = await fetch(
     `http://127.0.0.1:9001/script/unregister?fileUri=${fileUri.fsPath}`,
@@ -108,42 +116,58 @@ async function unregisterScript(fileUri: vscode.Uri) {
       headers: { contentType: "application/json" },
     }
   );
-  const data = await response.json();
 
-  console.log(`registerScript: ${JSON.stringify(data)}`);
-
-  // if (~response.ok) {
-  // 	vscode.window.showErrorMessage("There was an error registering the script.");
-  // 	console.log(response.)
-  // }
-
-  // vscode.window.showInformationMessage(`Registered!`);
+  if (response.status !== 202) {
+    console.error(`${prefix}: Response status - ${await response.status}`);
+    console.error(`${prefix}: There was an error. ${await response.text()}`);
+  } else {
+    const data = await response.json();
+    console.debug(`${prefix}: ${JSON.stringify(data)}`);
+  }
 }
 
 async function runAllScripts() {
+  const prefix = `${extName}.runAllScripts`;
+  console.info(`${prefix}: Running...`);
+
   const response = await fetch(`http://127.0.0.1:9001/run/all`, {
     method: "POST",
     headers: { contentType: "application/json" },
   });
-  const data = await response.json();
 
-  console.log(`registerScript: ${JSON.stringify(data)}`);
+  if (response.status !== 202) {
+    console.error(`${prefix}: Response status - ${await response.status}`);
+    console.error(`${prefix}: There was an error. ${await response.text()}`);
+  } else {
+    const data = await response.json();
+    console.debug(`${prefix}: ${JSON.stringify(data)}`);
+  }
 
-  // if (~response.ok) {
-  // 	vscode.window.showErrorMessage("There was an error registering the script.");
-  // 	console.log(response.)
-  // }
-
-  // vscode.window.showInformationMessage(`Registered!`);
+  await loadProfiles(vscode.window.visibleTextEditors);
 }
 
 async function loadProfiles(editors: readonly vscode.TextEditor[]) {
+  const prefix = `${extName}.loadProfiles`;
+  console.info(`${prefix}: Running...`);
+
   if (editors.length === 0) {
     return;
   }
 
   let editor = editors[0];
   let fileUri = editor.document.uri;
+
+  // Clear the previous set of decorations
+  for (let decoration of decorations) {
+    decoration.dispose();
+  }
+  decorations = [];
+
+  console.debug(
+    `${prefix}.fileUri: ${JSON.stringify({
+      fileUri: String(fileUri),
+    })}`
+  );
 
   const response = await fetch(
     `http://127.0.0.1:9001/function/profile?fileUri=${fileUri.fsPath}`,
@@ -152,16 +176,21 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
       headers: { contentType: "application/json" },
     }
   );
+
+  if (response.status !== 202) {
+    console.error(`${prefix}: There was an error.`);
+  }
+
   const data = await response.json();
+  console.debug(`${prefix}: ${JSON.stringify(data)}`);
 
   let functionDecorations: vscode.DecorationOptions[] = [];
-
-  console.log(`loadProfiles: ${JSON.stringify(data)}`);
 
   const functionDecoratorType = vscode.window.createTextEditorDecorationType({
     backgroundColor: "rgba(255,255,0,0.1)",
     isWholeLine: true,
   });
+  decorations.push(functionDecoratorType);
 
   for (let line of data) {
     let range = new vscode.Range(
@@ -173,47 +202,36 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
       functionDecorations.push({ range, hoverMessage });
       editor.setDecorations(functionDecoratorType, functionDecorations);
     } else {
-      console.log(`rgba(0,0,255,${line[1].toFixed(1)}`);
-      editor.setDecorations(
-        vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(100,0,0,${line[1]})`,
-          isWholeLine: true,
-        }),
-        [
-          {
-            range,
-            hoverMessage,
-            renderOptions: {
-              after: {
-                contentText: "(" + hoverMessage + ")",
-                color: "rgba(255,255,255,0.4)",
-                margin: "0px 0px 0px 25px",
-              },
+      let decoration = vscode.window.createTextEditorDecorationType({
+        backgroundColor: `rgba(100,0,0,${line[1]})`,
+        isWholeLine: true,
+      });
+      decorations.push(decoration);
+      editor.setDecorations(decoration, [
+        {
+          range,
+          hoverMessage,
+          renderOptions: {
+            after: {
+              contentText: "(" + hoverMessage + ")",
+              color: "rgba(255,255,255,0.4)",
+              margin: "0px 0px 0px 25px",
             },
           },
-        ]
-      );
+        },
+      ]);
     }
   }
-
-  // if (~response.ok) {
-  // 	vscode.window.showErrorMessage("There was an error registering the script.");
-  // 	console.log(response.)
-  // }
-
-  // vscode.window.showInformationMessage(`Registered!`);
 }
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log("vscode-line-profiler: activating...");
-  const extension = vscode.extensions.getExtension("ms-python.python");
+  const prefix = `${extName}.activate`;
+  console.info(`${prefix}: Running...`);
+
   // Check if python-extension is active and if we have a path from there
+  const extension = vscode.extensions.getExtension("ms-python.python");
   if (extension) {
-    let pyEnv: string;
+    let pyEnv: string = "";
     if (!extension.isActive) {
       await extension.activate();
     }
@@ -247,9 +265,7 @@ export async function activate(context: vscode.ExtensionContext) {
       console.log(mes);
     });
   } else {
-    console.log(
-      "vscode-line-profiler: ms-python is not installed. Aborting activation."
-    );
+    console.log(`${prefix}: ms-python is not installed. Aborting activation.`);
   }
 
   if (vscode.workspace.workspaceFolders) {
@@ -263,22 +279,17 @@ export async function activate(context: vscode.ExtensionContext) {
           headers: { contentType: "application/json" },
         }
       );
-      const data = await response.json();
-      console.log(
-        `vscode-line-proviler: Setting config path - ${JSON.stringify(data)}`
-      );
+
+      //TODO: Add inresponse check
     } catch (e) {
       if (typeof e === "string") {
-        console.error(e.toUpperCase()); // works, `e` narrowed to string
+        console.error(prefix + ": " + e.toUpperCase());
       } else if (e instanceof Error) {
-        console.error(e.message); // works, `e` narrowed to Error
+        console.error(prefix + ": " + e.message);
       }
     }
   }
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-line-profiler.registerFunction",
@@ -286,9 +297,6 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-line-profiler.unregisterFunction",
@@ -296,9 +304,6 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-line-profiler.registerScript",
@@ -306,9 +311,6 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-line-profiler.unregisterScript",
@@ -316,13 +318,19 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-line-profiler.runAllScripts",
-      runAllScripts
+      () => {
+        vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: "Python Line Profiler: Running profile...",
+            cancellable: false,
+          },
+          runAllScripts
+        );
+      }
     )
   );
 

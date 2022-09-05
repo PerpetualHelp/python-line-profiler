@@ -8,6 +8,12 @@
 
 `python-line-profiler` is a vscode extension to configure and run [line_profiler](https://github.com/pyutils/line_profiler#installation), then visualize the results in the editor.
 
+If you find this useful, buy me a beverage.
+
+<a href="https://www.paypal.com/donate/?business=BJ5E2X66MKSAL&no_recurring=0&currency_code=USD"><img alt="Paypal Donate" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif"/></a>
+
+If you would like to support the continue development of this and other projects, consider a recurring donation. Recurring donors are more likely to have requested features implemented. See the [funding](#funding) section.
+
 ## Contents
 
 1. [Features](#features)
