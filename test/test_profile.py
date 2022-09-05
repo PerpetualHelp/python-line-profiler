@@ -17,11 +17,6 @@ class TestProfile(unittest.TestCase):
 
         script = ScriptTest(path="./test/test_process.py", functions=functions)
 
-        print(script.run())
-
-        return
-
     def test_function(self):
 
         func = Function(path="./test/test_process.py", function="bad_local_mean")
-        print(func)

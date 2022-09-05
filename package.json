@@ -76,13 +76,13 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run build",
     "compile": "tsc -p ./",
     "watch": "npm run build && tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "python": "cp -r ./src/extension.py ./out",
+    "python": "cp ./src/extension.py ./out && cp ./src/model.py ./out && cp ./src/__init__.py ./out",
     "build": "npm run compile && npm run python"
   },
   "extensionDependencies": [

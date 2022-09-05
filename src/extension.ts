@@ -184,14 +184,6 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
   const data = await response.json();
   console.debug(`${prefix}: ${JSON.stringify(data)}`);
 
-  let functionDecorations: vscode.DecorationOptions[] = [];
-
-  const functionDecoratorType = vscode.window.createTextEditorDecorationType({
-    backgroundColor: "rgba(255,255,0,0.1)",
-    isWholeLine: true,
-  });
-  decorations.push(functionDecoratorType);
-
   for (let line of data) {
     let range = new vscode.Range(
       new vscode.Position(line[0] - 1, 0),
@@ -199,8 +191,24 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
     );
     let hoverMessage = line[2];
     if (line[1] === null) {
-      functionDecorations.push({ range, hoverMessage });
-      editor.setDecorations(functionDecoratorType, functionDecorations);
+      let decoration = vscode.window.createTextEditorDecorationType({
+        backgroundColor: "rgba(255,255,0,0.1)",
+        isWholeLine: true,
+      });
+      decorations.push(decoration);
+      editor.setDecorations(decoration, [
+        {
+          range,
+          hoverMessage,
+          renderOptions: {
+            after: {
+              contentText: "(" + hoverMessage + ")",
+              color: "rgba(255,255,255,0.4)",
+              margin: "0px 0px 0px 25px",
+            },
+          },
+        },
+      ]);
     } else {
       let decoration = vscode.window.createTextEditorDecorationType({
         backgroundColor: `rgba(100,0,0,${line[1]})`,
@@ -271,6 +279,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (vscode.workspace.workspaceFolders) {
     let fileUri = vscode.workspace.workspaceFolders[0].uri;
     try {
+      // TODO: This should be updated. This just waits 2 seconds for the backend to startup.
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await fetch(
         `http://127.0.0.1:9001/config/path?fileUri=${fileUri.fsPath}`,
@@ -335,6 +344,8 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.window.onDidChangeVisibleTextEditors(loadProfiles);
+
+  await loadProfiles(vscode.window.visibleTextEditors);
 }
 
 // this method is called when your extension is deactivated
