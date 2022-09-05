@@ -23,8 +23,6 @@ If you would like to support the continue development of this and other projects
 3. [Known Issues](#known-issues)
 4. [Donate](#funding)
 
-<a href="https://liberapay.com/nicholas-schaub/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
-
 ## Features
 
 To use `python-line-profiler`:
@@ -72,6 +70,6 @@ This is a buggy beta. If you're trying it out, give us some feedback in the [iss
 
 ## Funding
 
-Donations are appreciated to support the continued development of this project and future projects like it.
+Donations are appreciated to support the continued development of this project and future projects like it. A recurring donation can be set up using Libra Pay by clicking on the button below.
 
-<a href="https://liberapay.com/nicholas-schaub/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
+<a href="https://liberapay.com/nicholas-schaub/donate"><img src="https://img.shields.io/liberapay/receives/nicholas-schaub.svg?style=flat-square&logo=liberapay"></a>
