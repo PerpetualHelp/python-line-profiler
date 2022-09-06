@@ -68,10 +68,13 @@ async def config_path(fileUri: Path) -> None:
     CONFIG_PATH = fileUri.joinpath(".lprof/settings.json")
 
 
-@app.post("/run/all", status_code=status.HTTP_202_ACCEPTED)
-async def run_all_scripts() -> None:
+@app.post("/run/script", status_code=status.HTTP_202_ACCEPTED)
+async def run_script(fileUri: Path) -> None:
     """Run all registered profiling scripts."""
     config = Config.load_config(CONFIG_PATH)
+
+    config.scripts = []
+    config.add_script(fileUri)
 
     for script in config.scripts:
         script_test = ScriptTest(functions=config.functions, **script.dict())
@@ -144,26 +147,6 @@ async def unregister_function(fileUri: Path, function: str) -> None:
     config = Config.load_config(CONFIG_PATH)
 
     config.remove_function(fileUri, function)
-
-    config.update_config(CONFIG_PATH)
-
-
-@app.post("/script/register", status_code=status.HTTP_202_ACCEPTED)
-async def register_script(fileUri: Path) -> None:
-    """Register a script to be run for profiling."""
-    config = Config.load_config(CONFIG_PATH)
-
-    config.add_script(fileUri)
-
-    config.update_config(CONFIG_PATH)
-
-
-@app.post("/script/unregister", status_code=status.HTTP_202_ACCEPTED)
-async def unregister_script(fileUri: Path) -> None:
-    """Remove a script from the list of scripts used for profiling."""
-    config = Config.load_config(CONFIG_PATH)
-
-    config.remove_script(fileUri)
 
     config.update_config(CONFIG_PATH)
 

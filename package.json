@@ -1,6 +1,6 @@
 {
   "name": "python-line-profiler",
-  "displayName": "python-line-profiler",
+  "displayName": "Python Line Profiler",
   "description": "A vscode extension to configure, run, and visualize the results of line-profiler in Python",
   "publisher": "PerpetualHelp",
   "version": "0.1.2",
@@ -19,6 +19,7 @@
     "onLanguage:python"
   ],
   "main": "./out/extension.js",
+  "icon": "icon.png",
   "contributes": {
     "commands": [
       {
@@ -30,33 +31,15 @@
         "title": "Python Line Profiler: UnRegister Function"
       },
       {
-        "command": "vscode-line-profiler.registerScript",
-        "title": "Python Line Profiler: Register Script"
-      },
-      {
-        "command": "vscode-line-profiler.unregisterScript",
-        "title": "Python Line Profiler: UnRegister Script"
-      },
-      {
-        "command": "vscode-line-profiler.runAllScripts",
-        "title": "Python Line Profiler: Run All Scripts"
+        "command": "vscode-line-profiler.runScript",
+        "title": "Python Line Profiler: Run Script"
       }
     ],
     "menus": {
       "explorer/context": [
         {
           "when": "resourceLangId == python",
-          "command": "vscode-line-profiler.registerScript",
-          "group": "1_profile"
-        },
-        {
-          "when": "resourceLangId == python",
-          "command": "vscode-line-profiler.unregisterScript",
-          "group": "1_profile"
-        },
-        {
-          "when": "resourceLangId == python",
-          "command": "vscode-line-profiler.runAllScripts",
+          "command": "vscode-line-profiler.runScript",
           "group": "1_profile"
         }
       ],
@@ -69,11 +52,6 @@
         {
           "when": "resourceLangId == python",
           "command": "vscode-line-profiler.unregisterFunction",
-          "group": "1_profile"
-        },
-        {
-          "when": "resourceLangId == python",
-          "command": "vscode-line-profiler.runAllScripts",
           "group": "1_profile"
         }
       ]

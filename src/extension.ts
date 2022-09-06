@@ -1,10 +1,11 @@
 import fetch from "node-fetch";
-import { spawn } from "child_process";
+import { spawn, execFileSync, execSync } from "child_process";
 import * as vscode from "vscode";
 import { IProposedExtensionAPI } from "./dependencies/vscode-python";
 
 let pyProcess;
 var decorations: vscode.TextEditorDecorationType[] = [];
+let extensionPath = "/";
 const extName = "python-line-profiler";
 
 /**
@@ -82,68 +83,38 @@ async function unregisterFunction() {
   }
 }
 
-async function registerScript(fileUri: vscode.Uri) {
-  const prefix = `${extName}.registerScript`;
+async function runScript(fileUri: vscode.Uri) {
+  const prefix = `${extName}.runScript`;
   console.info(`${prefix}: Running...`);
-  console.debug(`${prefix}: ${JSON.stringify({ fileUri: fileUri.fsPath })}`);
 
-  const response = await fetch(
-    `http://127.0.0.1:9001/script/register?fileUri=${fileUri.fsPath}`,
+  vscode.window.withProgress(
     {
-      method: "POST",
-      headers: { contentType: "application/json" },
+      location: vscode.ProgressLocation.Notification,
+      title: "Python Line Profiler: Running profile...",
+      cancellable: false,
+    },
+    async (progress) => {
+      const response = await fetch(
+        `http://127.0.0.1:9001/run/script?fileUri=${fileUri.fsPath}`,
+        {
+          method: "POST",
+          headers: { contentType: "application/json" },
+        }
+      );
+
+      if (response.status !== 202) {
+        console.error(`${prefix}: Response status - ${response.status}`);
+        console.error(
+          `${prefix}: There was an error. ${await response.text()}`
+        );
+      } else {
+        const data = await response.json();
+        console.debug(`${prefix}: ${JSON.stringify(data)}`);
+      }
+
+      await loadProfiles(vscode.window.visibleTextEditors);
     }
   );
-
-  if (response.status !== 202) {
-    console.error(`${prefix}: Response status - ${await response.status}`);
-    console.error(`${prefix}: There was an error. ${await response.text()}`);
-  } else {
-    const data = await response.json();
-    console.debug(`${prefix}: ${JSON.stringify(data)}`);
-  }
-}
-
-async function unregisterScript(fileUri: vscode.Uri) {
-  const prefix = `${extName}.unregisterScript`;
-  console.info(`${prefix}: Running...`);
-  console.debug(`${prefix}: ${JSON.stringify({ fileUri: fileUri.fsPath })}`);
-
-  const response = await fetch(
-    `http://127.0.0.1:9001/script/unregister?fileUri=${fileUri.fsPath}`,
-    {
-      method: "POST",
-      headers: { contentType: "application/json" },
-    }
-  );
-
-  if (response.status !== 202) {
-    console.error(`${prefix}: Response status - ${await response.status}`);
-    console.error(`${prefix}: There was an error. ${await response.text()}`);
-  } else {
-    const data = await response.json();
-    console.debug(`${prefix}: ${JSON.stringify(data)}`);
-  }
-}
-
-async function runAllScripts() {
-  const prefix = `${extName}.runAllScripts`;
-  console.info(`${prefix}: Running...`);
-
-  const response = await fetch(`http://127.0.0.1:9001/run/all`, {
-    method: "POST",
-    headers: { contentType: "application/json" },
-  });
-
-  if (response.status !== 202) {
-    console.error(`${prefix}: Response status - ${await response.status}`);
-    console.error(`${prefix}: There was an error. ${await response.text()}`);
-  } else {
-    const data = await response.json();
-    console.debug(`${prefix}: ${JSON.stringify(data)}`);
-  }
-
-  await loadProfiles(vscode.window.visibleTextEditors);
 }
 
 async function loadProfiles(editors: readonly vscode.TextEditor[]) {
@@ -232,8 +203,8 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
   }
 }
 
-export async function activate(context: vscode.ExtensionContext) {
-  const prefix = `${extName}.activate`;
+export async function initializePython() {
+  const prefix = `${extName}.initializePython`;
   console.info(`${prefix}: Running...`);
 
   // Check if python-extension is active and if we have a path from there
@@ -258,12 +229,13 @@ export async function activate(context: vscode.ExtensionContext) {
       console.error("Could not find a Python environment.");
     }
 
-    // api.environment.onDidActiveEnvironmentChanged((listener) => {
-    //   this.pydoctestAnalyzer.configuration.pythonInterpreterPath =
-    //     listener.path;
-    // });
-
-    pyProcess = spawn(pyEnv, [context.extensionPath + "/out/extension.py"]);
+    console.log(
+      `${prefix}: ` +
+        execSync(
+          pyEnv + " -m pip install -r " + extensionPath + "/requirements.txt"
+        )
+    );
+    pyProcess = spawn(pyEnv, [extensionPath + "/out/extension.py"]);
     pyProcess.stderr.on("data", (data) => {
       let mes = data.toString().trim();
       console.error(mes);
@@ -275,12 +247,37 @@ export async function activate(context: vscode.ExtensionContext) {
   } else {
     console.log(`${prefix}: ms-python is not installed. Aborting activation.`);
   }
+  // TODO: This should be updated. This just waits 2 seconds for the backend to startup.
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+  const prefix = `${extName}.activate`;
+  console.info(`${prefix}: Running...`);
+
+  extensionPath = context.extensionPath;
+
+  const extension = vscode.extensions.getExtension("ms-python.python");
+  if (extension) {
+    if (!extension.isActive) {
+      await extension.activate();
+    }
+    const api: IProposedExtensionAPI =
+      extension.exports as IProposedExtensionAPI;
+
+    api.environment.onDidActiveEnvironmentChanged(async (listener) => {
+      await initializePython();
+    });
+  } else {
+    console.log(`${prefix}: ms-python is not installed. Aborting activation.`);
+    throw Error("ms-python is not installed.");
+  }
+
+  await initializePython();
 
   if (vscode.workspace.workspaceFolders) {
     let fileUri = vscode.workspace.workspaceFolders[0].uri;
     try {
-      // TODO: This should be updated. This just waits 2 seconds for the backend to startup.
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await fetch(
         `http://127.0.0.1:9001/config/path?fileUri=${fileUri.fsPath}`,
         {
@@ -314,33 +311,7 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "vscode-line-profiler.registerScript",
-      registerScript
-    )
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "vscode-line-profiler.unregisterScript",
-      unregisterScript
-    )
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "vscode-line-profiler.runAllScripts",
-      () => {
-        vscode.window.withProgress(
-          {
-            location: vscode.ProgressLocation.Notification,
-            title: "Python Line Profiler: Running profile...",
-            cancellable: false,
-          },
-          runAllScripts
-        );
-      }
-    )
+    vscode.commands.registerCommand("vscode-line-profiler.runScript", runScript)
   );
 
   vscode.window.onDidChangeVisibleTextEditors(loadProfiles);

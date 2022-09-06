@@ -9,6 +9,9 @@
 
 `python-line-profiler` is a vscode extension to configure and run [line_profiler](https://github.com/pyutils/line_profiler#installation), then visualize the results in the editor.
 
+
+![example](images/highlights.jpg)
+
 This is a very buggy beta. If you run into a problem, look at the [known issues](#known-issues) first. If your issue still isn't resolved, or you have an outstanding question, submit an [issue](https://github.com/PerpetualHelp/python-line-profiler/issues)
 
 If you find this useful and would like to see continued development, buy me a beverage by hitting the donate button at the top.
@@ -26,12 +29,11 @@ If you would like to support the continue development of this and other projects
 ## Features
 
 To use `python-line-profiler`:
-1. Select a function or functions to profile
-2. Select a script to use for profiling
-3. Run the script
-4. Review the results that use inline profiling, with tooltips providing exact times
-
-![feature X](images/highlight.png)
+1. Highlight a function in the editor, right click and choose `Python Line Profiler: Register Function`
+![register function](images/register_function.jpg)
+2. In the file explorer, select a script to profile the registered function, right click and choose `Python Line Profiler: Run Script`
+![run script](images/run_script.jpg)
+3. Once the script is done running, results will be displayed as text decorations showing the number of times each line was called along with total run times. Each line is highlighted in red, with brighter red indicating longer run times relative to other lines.
 
 In the above example, line 92 is the brightest and therefore the most time consuming line of code.
 
@@ -63,6 +65,7 @@ This is a very buggy beta. There are probably a lot of issues. Known issues are:
 Possible issues based on the current code. If you run into these issues, please open an [issue](https://github.com/PerpetualHelp/python-line-profiler/issues):
 1. Import aliasing (`import numpy as np`) could cause issues.
 2. Relative imports with more than one level of namespace packages will likely cause problems.
+3. Changing environments without reloading the window will likely cause issues.
 
 ## Release Notes
 
