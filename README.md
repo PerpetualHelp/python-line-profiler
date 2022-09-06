@@ -10,7 +10,7 @@
 `python-line-profiler` is a vscode extension to configure and run [line_profiler](https://github.com/pyutils/line_profiler#installation), then visualize the results in the editor.
 
 
-![example](images/highlights.jpg)
+![example](https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/highlights.jpg)
 
 This is a very buggy beta. If you run into a problem, look at the [known issues](#known-issues) first. If your issue still isn't resolved, or you have an outstanding question, submit an [issue](https://github.com/PerpetualHelp/python-line-profiler/issues)
 
@@ -30,9 +30,9 @@ If you would like to support the continue development of this and other projects
 
 To use `python-line-profiler`:
 1. Highlight a function in the editor, right click and choose `Python Line Profiler: Register Function`
-![register function](images/register_function.jpg)
+![register function](https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/register_function.jpg)
 2. In the file explorer, select a script to profile the registered function, right click and choose `Python Line Profiler: Run Script`
-![run script](images/run_script.jpg)
+![run script](https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/run_script.jpg)
 3. Once the script is done running, results will be displayed as text decorations showing the number of times each line was called along with total run times. Each line is highlighted in red, with brighter red indicating longer run times relative to other lines.
 
 In the above example, line 92 is the brightest and therefore the most time consuming line of code.
