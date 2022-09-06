@@ -5,7 +5,7 @@
 <a href="https://www.paypal.com/donate/?business=BJ5E2X66MKSAL&no_recurring=0&currency_code=USD"><img alt="Paypal Donate" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif"/></a>
 </p>
 
-# python-line-profiler (v0.2.0-dev0)
+# python-line-profiler (v0.2.0)
 
 `python-line-profiler` is a vscode extension to configure and run [line_profiler](https://github.com/pyutils/line_profiler#installation), then visualize the results in the editor.
 
