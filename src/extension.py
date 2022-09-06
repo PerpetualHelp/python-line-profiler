@@ -7,7 +7,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from fastapi import FastAPI, status  # noqa: E402
 
-from model import TIME_UNITS, Config, FunctionProfile, ScriptTest  # noqa: E402
+from model import TIME_UNITS, FunctionProfile, ScriptTest  # noqa: E402
 
 CONFIG_PATH: Path = Path(".lprof/settings.json")
 
@@ -67,22 +67,27 @@ async def config_path(fileUri: Path) -> None:
 
     CONFIG_PATH = fileUri.joinpath(".lprof/settings.json")
 
+    if not CONFIG_PATH.exists():
+        CONFIG_PATH.parent.mkdir(exist_ok=True)
+
 
 @app.post("/run/script", status_code=status.HTTP_202_ACCEPTED)
 async def run_script(fileUri: Path) -> None:
     """Run all registered profiling scripts."""
-    config = Config.load_config(CONFIG_PATH)
+    script_test = ScriptTest.load_config(CONFIG_PATH)
 
-    config.scripts = []
-    config.add_script(fileUri)
+    script_test.path = fileUri
+    script_test.unit_test = False
 
-    for script in config.scripts:
-        script_test = ScriptTest(functions=config.functions, **script.dict())
-        func_profile = script_test.run()
+    print(script_test)
 
-        for profile in func_profile:
-            with open(CONFIG_PATH.with_name(profile.function + ".json"), "w") as fw:
-                fw.write(profile.json(indent=2))
+    func_profile = script_test.run()
+
+    for profile in func_profile:
+        with open(CONFIG_PATH.with_name(profile.function + ".json"), "w") as fw:
+            fw.write(profile.json(indent=2))
+
+    script_test.update_config(CONFIG_PATH)
 
 
 @app.post("/function/profile", status_code=status.HTTP_202_ACCEPTED)
@@ -134,7 +139,7 @@ async def function_profile(
 @app.post("/function/register", status_code=status.HTTP_202_ACCEPTED)
 async def register_function(fileUri: Path, function: str) -> None:
     """Register a function for profiling."""
-    config = Config.load_config(CONFIG_PATH)
+    config = ScriptTest.load_config(CONFIG_PATH)
 
     config.add_function(fileUri, function)
 
@@ -144,7 +149,7 @@ async def register_function(fileUri: Path, function: str) -> None:
 @app.post("/function/unregister", status_code=status.HTTP_202_ACCEPTED)
 async def unregister_function(fileUri: Path, function: str) -> None:
     """Remove a function from the list of functions to profile."""
-    config = Config.load_config(CONFIG_PATH)
+    config = ScriptTest.load_config(CONFIG_PATH)
 
     config.remove_function(fileUri, function)
 

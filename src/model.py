@@ -30,6 +30,7 @@ class BaseConfig(BaseModel):
         alias_generator = to_camel
         arbitrary_types_allowed = True
         underscore_attrs_are_private = True
+        validate_assignment = True
 
 
 class Script(BaseConfig):
@@ -51,6 +52,9 @@ class Script(BaseConfig):
         """Check if the script is a unit test."""
         if v:
             return v
+
+        if values["path"] == Path("."):
+            return False
 
         with open(values["path"], "r") as fr:
 
@@ -139,8 +143,49 @@ class FunctionProfile(Function):
 class ScriptTest(Script):
     """Configuration for running a script for profiling."""
 
-    functions: List[Function]
+    path: Path = Path(".")
+    functions: List[Function] = []
     script: Optional[str] = None
+
+    def function_index(self, path: Path, function: str) -> Optional[int]:
+        """Get the list index of the function."""
+        for i, f in enumerate(self.functions):
+            if f.path.absolute() == path and f.function == function:
+                return i
+
+        return None
+
+    def remove_function(self, path: Path, function: str) -> None:
+        """Remove a function from the list of functions to profile."""
+        index = self.function_index(path, function)
+
+        if index is not None:
+            self.functions.pop(index)
+
+    def add_function(self, path: Path, function: str) -> None:
+        """Add a function to the list of functions to profile."""
+        if function == "":
+            return
+
+        if self.function_index(path, function) is not None:
+            return
+
+        self.functions.append(Function(path=path, function=function))
+
+    def update_config(self, config_path: Path) -> None:
+        """Save the current configuration, overwriting the old configuration."""
+        config_path.parent.mkdir(exist_ok=True)
+
+        with open(config_path, "w") as writer:
+            writer.write(self.json(indent=2))
+
+    @classmethod
+    def load_config(cls, config_path: Path) -> "ScriptTest":
+        """Load and return the configuration."""
+        if config_path.exists():
+            return cls.parse_file(config_path)
+        else:
+            return cls()
 
     def run(self) -> List[FunctionProfile]:
         """Run the script, return the profile of all functions."""
@@ -240,69 +285,3 @@ class ScriptTest(Script):
         sys.path.pop()
 
         return funcs
-
-
-class Config(BaseConfig):
-    """Configuration for scripts and functions for profiling."""
-
-    scripts: List[Script] = []
-    functions: List[Function] = []
-
-    def script_index(self, path: Path) -> Optional[int]:
-        """Get the list index of the script."""
-        for i, script in enumerate(self.scripts):
-            if script.path.absolute() == path:
-                return i
-
-        return None
-
-    def function_index(self, path: Path, function: str) -> Optional[int]:
-        """Get the list index of the function."""
-        for i, f in enumerate(self.functions):
-            if f.path.absolute() == path and f.function == function:
-                return i
-
-        return None
-
-    def remove_function(self, path: Path, function: str) -> None:
-        """Remove a function from the list of functions to profile."""
-        index = self.function_index(path, function)
-
-        if index is not None:
-            self.functions.pop(index)
-
-    def remove_script(self, path: Path) -> None:
-        """Remove a script from the list of scripts used for profiling."""
-        index = self.script_index(path)
-
-        if index is not None:
-            self.scripts.pop(index)
-
-    def add_function(self, path: Path, function: str) -> None:
-        """Add a function to the list of functions to profile."""
-        if self.function_index(path, function) is not None:
-            return
-
-        self.functions.append(Function(path=path, function=function))
-
-    def add_script(self, path: Path) -> None:
-        """Add a script to the list of scripts used for profiling."""
-        if self.script_index(path) is not None:
-            return
-
-        self.scripts.append(Script(path=path))
-
-    def update_config(self, config_path: Path) -> None:
-        """Save the current configuration, overwriting the old configuration."""
-        config_path.parent.mkdir(exist_ok=True)
-
-        with open(config_path, "w") as writer:
-            writer.write(self.json(indent=2))
-
-    @classmethod
-    def load_config(cls, config_path: Path) -> "Config":
-        """Load and return the configuration."""
-        if config_path.exists():
-            return cls.parse_file(config_path)
-        else:
-            return cls()

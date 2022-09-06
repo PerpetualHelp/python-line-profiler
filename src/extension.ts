@@ -1,9 +1,9 @@
 import fetch from "node-fetch";
-import { spawn, execFileSync, execSync } from "child_process";
+import { spawn, execSync } from "child_process";
 import * as vscode from "vscode";
 import { IProposedExtensionAPI } from "./dependencies/vscode-python";
 
-let pyProcess;
+var childControllers: AbortController[] = [];
 var decorations: vscode.TextEditorDecorationType[] = [];
 let extensionPath = "/";
 const extName = "python-line-profiler";
@@ -207,6 +207,16 @@ export async function initializePython() {
   const prefix = `${extName}.initializePython`;
   console.info(`${prefix}: Running...`);
 
+  // Send the kill signal to existing processes
+  if (childControllers.length > 0) {
+    childControllers[childControllers.length - 1].abort();
+  }
+
+  // Create a new abort signal
+  let childController = new AbortController();
+  let { signal } = childController;
+  childControllers.push(childController);
+
   // Check if python-extension is active and if we have a path from there
   const extension = vscode.extensions.getExtension("ms-python.python");
   if (extension) {
@@ -235,7 +245,9 @@ export async function initializePython() {
           pyEnv + " -m pip install -r " + extensionPath + "/requirements.txt"
         )
     );
-    pyProcess = spawn(pyEnv, [extensionPath + "/out/extension.py"]);
+    let pyProcess = spawn(pyEnv, [extensionPath + "/out/extension.py"], {
+      signal,
+    });
     pyProcess.stderr.on("data", (data) => {
       let mes = data.toString().trim();
       console.error(mes);
@@ -320,4 +332,8 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export async function deactivate() {}
+export async function deactivate() {
+  for (let childController of childControllers) {
+    childController.abort();
+  }
+}
