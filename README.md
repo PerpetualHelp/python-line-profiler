@@ -1,6 +1,10 @@
 <p align="center">
+<a href=https://marketplace.visualstudio.com/items?itemName=perpetualhelp.python-line-profiler><img src=https://vsmarketplacebadge.apphb.com/version/perpetualhelp.python-line-profiler.svg?style=flat-square></a>
+<a href=https://marketplace.visualstudio.com/items?itemName=perpetualhelp.python-line-profiler><img src=https://vsmarketplacebadge.apphb.com/installs/perpetualhelp.python-line-profiler.svg?style=flat-square></a>
+<a href=https://marketplace.visualstudio.com/items?itemName=perpetualhelp.python-line-profiler><img src=https://vsmarketplacebadge.apphb.com/rating/perpetualhelp.python-line-profiler.svg?style=flat-square></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="Code style: black" src="https://img.shields.io/badge/License-MIT-red?style=flat-square"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000?style=flat-square"></a>
+<br>
 <a href="https://liberapay.com/nicholas-schaub/donate"><img src="https://img.shields.io/liberapay/receives/nicholas-schaub.svg?style=flat-square&logo=liberapay"></a>
 <a href="https://www.paypal.com/donate/?business=BJ5E2X66MKSAL&no_recurring=0&currency_code=USD"><img alt="Paypal Donate" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif"/></a>
 </p>
@@ -30,9 +34,13 @@ If you would like to support the continue development of this and other projects
 
 To use `python-line-profiler`:
 1. Highlight a function in the editor, right click and choose `Python Line Profiler: Register Function`
-![register function](https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/register_function.jpg)
+
+<p align=center><img src=https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/register_function.jpg></p>
+
 2. In the file explorer, select a script to profile the registered function, right click and choose `Python Line Profiler: Run Script`
-![run script](https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/run_script.jpg)
+
+<p align=center><img src=https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/run_script.jpg></p>
+
 3. Once the script is done running, results will be displayed as text decorations showing the number of times each line was called along with total run times. Each line is highlighted in red, with brighter red indicating longer run times relative to other lines.
 
 In the above example, line 92 is the brightest and therefore the most time consuming line of code.

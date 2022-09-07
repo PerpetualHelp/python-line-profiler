@@ -118,6 +118,11 @@ async function runScript(fileUri: vscode.Uri) {
 }
 
 async function loadProfiles(editors: readonly vscode.TextEditor[]) {
+  // Load settings
+  let config = vscode.workspace.getConfiguration("python.profile");
+  let colorOn = config.has("lineColorOn") ? config.get("lineColorOn") : true;
+  let lineColor = config.has("lineColor") ? config.get("lineColor") : "100,0,0";
+
   const prefix = `${extName}.loadProfiles`;
   console.info(`${prefix}: Running...`);
 
@@ -162,8 +167,10 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
     );
     let hoverMessage = line[2];
     if (line[1] === null) {
+      let color = "rgba(255,255,0,0.1)";
+      false;
       let decoration = vscode.window.createTextEditorDecorationType({
-        backgroundColor: "rgba(255,255,0,0.1)",
+        backgroundColor: color,
         isWholeLine: true,
       });
       decorations.push(decoration);
@@ -181,8 +188,12 @@ async function loadProfiles(editors: readonly vscode.TextEditor[]) {
         },
       ]);
     } else {
+      let color = `rgba(${lineColor},${line[1]})`;
+      if (!colorOn) {
+        color = `rgba(100,0,0,0.0)`;
+      }
       let decoration = vscode.window.createTextEditorDecorationType({
-        backgroundColor: `rgba(100,0,0,${line[1]})`,
+        backgroundColor: color,
         isWholeLine: true,
       });
       decorations.push(decoration);

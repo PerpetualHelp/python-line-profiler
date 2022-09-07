@@ -58,14 +58,18 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "npm run esbuild-base -- --minify && npm run python",
     "compile": "tsc -p ./",
     "watch": "npm run build && tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "python": "cp ./src/extension.py ./out && cp ./src/model.py ./out && cp ./src/__init__.py ./out",
-    "build": "npm run compile && npm run python"
+    "build": "npm run compile && npm run python",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap && npm run python",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "test-compile": "tsc -p ./"
   },
   "extensionDependencies": [
     "ms-python.python"
@@ -78,6 +82,7 @@
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
     "@vscode/test-electron": "^2.1.5",
+    "esbuild": "^0.15.7",
     "eslint": "^8.20.0",
     "glob": "^8.0.3",
     "json-schema-to-typescript": "^11.0.2",
@@ -86,7 +91,7 @@
   },
   "dependencies": {
     "@types/node-fetch": "2.x",
-    "vsce": "^2.11.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "vsce": "^2.11.0"
   }
 }
