@@ -3,7 +3,7 @@
   "displayName": "Python Line Profiler",
   "description": "A vscode extension to configure, run, and visualize the results of line-profiler in Python",
   "publisher": "PerpetualHelp",
-  "version": "0.3.1-dev0",
+  "version": "0.3.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/PerpetualHelp/python-line-profiler"
