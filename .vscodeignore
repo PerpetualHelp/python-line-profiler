@@ -10,3 +10,4 @@ vsc-extension-quickstart.md
 **/*.ts
 .mypy_cache
 test
+node_modules
