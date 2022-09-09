@@ -79,8 +79,6 @@ async def run_script(fileUri: Path) -> None:
     script_test.path = fileUri
     script_test.unit_test = False
 
-    print(script_test)
-
     func_profile = script_test.run()
 
     for profile in func_profile:
@@ -96,6 +94,9 @@ async def function_profile(
 ) -> List[Tuple[int, Union[None, float], str]]:
     """Return function profiles for all functions in the specified script."""
     output: List[Tuple[int, Union[None, float], str]] = []
+
+    if not CONFIG_PATH.exists():
+        return output
 
     for path in Path(CONFIG_PATH.parent).iterdir():
         if path.name == "settings.json":

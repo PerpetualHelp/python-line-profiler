@@ -68,22 +68,18 @@ class Script(BaseConfig):
         return False
 
 
-class Module(Script):
-    """Module definition and processing."""
+class Function(Script):
+    """Function definition and ingestion."""
 
+    function: str
     module: Optional[str] = None
-    _reload: bool = True
-    _module: ModuleType = PrivateAttr()
-    _spec: Any = PrivateAttr()
+    _module: ModuleType = PrivateAttr(None)
 
-    def __init__(self, **data: Any):
-        """Initialize a module.
+    class Config:  # noqa: D106
+        arbitrary_types_allowed = True
 
-        TODO: Make this logic better. Very clunky right now.
-
-        """
-        super().__init__(**data)
-
+    def get_function(self) -> FunctionType:
+        """Get the function signature."""
         if self.module is None:
 
             # Specify the full module name
@@ -93,27 +89,17 @@ class Module(Script):
                 self.module = paths[-1].name + "." + self.module
                 paths.append(paths[-1].parent.absolute())
 
-        spec = importlib.util.spec_from_file_location(self.module, self.path)
-        if spec is not None:
-            self._module = importlib.util.module_from_spec(spec)
-            if spec.loader is not None:
-                spec.loader.exec_module(self._module)
+        if self._module is None:
+            spec = importlib.util.spec_from_file_location(self.module, self.path)
+            if spec is not None:
+                self._module = importlib.util.module_from_spec(spec)
+                if spec.loader is not None:
+                    spec.loader.exec_module(self._module)
+                else:
+                    raise ValueError(f"Could not find loader for module: {self.module}")
             else:
-                raise ValueError(f"Could not find loader for module: {self.module}")
-        else:
-            raise ValueError(f"Could not find module: {self.module}")
+                raise ValueError(f"Could not find module: {self.module}")
 
-
-class Function(Module):
-    """Function definition and ingestion."""
-
-    function: str
-
-    class Config:  # noqa: D106
-        arbitrary_types_allowed = True
-
-    def get_function(self) -> FunctionType:
-        """Get the function signature."""
         function = [
             func
             for name, func in inspect.getmembers(self._module)
@@ -211,10 +197,16 @@ class ScriptTest(Script):
             # Reload the functions module if the function is directly imported
             if f.function in main_dict.keys():
                 module = inspect.getmodule(main_dict[f.function])
+
                 if module is None:
                     raise ValueError(
                         f"Could not find module for function: {f.function}"
                     )
+
+                # If the module name is __main__, don't reload
+                if module.__name__ == "__main__":
+                    continue
+
                 importlib.reload(module)
 
             # Reload the module if only the module is imported
@@ -259,7 +251,7 @@ class ScriptTest(Script):
 
                     # If not a namespace module, just reload the module
                     else:
-                        if not isinstance(module, Module):
+                        if not isinstance(module, ModuleType):
                             raise ValueError(
                                 f"Could not find module for function: {f.function}"
                             )

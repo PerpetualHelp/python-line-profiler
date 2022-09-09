@@ -5,6 +5,7 @@ import { IProposedExtensionAPI } from "./dependencies/vscode-python";
 
 var childControllers: AbortController[] = [];
 var decorations: vscode.TextEditorDecorationType[] = [];
+let isInitialized: boolean = false;
 let extensionPath = "/";
 const extName = "python-line-profiler";
 
@@ -58,7 +59,7 @@ async function unregisterFunction() {
   var text = vscode.window.activeTextEditor?.document.getText(selection);
   var fileUri = vscode.window.activeTextEditor?.document.fileName;
 
-  console.debug(
+  console.info(
     `${prefix}: ${JSON.stringify({
       fileUri: String(fileUri),
     })}`
@@ -79,7 +80,7 @@ async function unregisterFunction() {
     console.error(`${prefix}: There was an error. ${await response.text()}`);
   } else {
     const data = await response.json();
-    console.debug(`${prefix}: ${JSON.stringify(data)}`);
+    console.info(`${prefix}: ${JSON.stringify(data)}`);
   }
 }
 
@@ -261,6 +262,9 @@ export async function initializePython() {
     });
     pyProcess.stderr.on("data", (data) => {
       let mes = data.toString().trim();
+      if (mes.indexOf("INFO:     Application startup complete.")) {
+        isInitialized = true;
+      }
       console.error(mes);
     });
     pyProcess.stdout.on("data", (data) => {
@@ -270,8 +274,11 @@ export async function initializePython() {
   } else {
     console.log(`${prefix}: ms-python is not installed. Aborting activation.`);
   }
-  // TODO: This should be updated. This just waits 2 seconds for the backend to startup.
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  console.info(`${prefix}: Waiting for server to start...`);
+  while (!isInitialized) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  console.info(`${prefix}: Server started.`);
 }
 
 export async function activate(context: vscode.ExtensionContext) {

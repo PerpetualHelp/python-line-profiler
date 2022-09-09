@@ -13,18 +13,15 @@
 
 `python-line-profiler` is a vscode extension to configure and run [line_profiler](https://github.com/pyutils/line_profiler#installation), then visualize the results in the editor.
 
-
 ![example](https://github.com/PerpetualHelp/python-line-profiler/raw/master/images/highlights.jpg)
 
 This is a very buggy beta. If you run into a problem, look at the [known issues](#known-issues) first. If your issue still isn't resolved, or you have an outstanding question, submit an [issue](https://github.com/PerpetualHelp/python-line-profiler/issues)
 
 If you find this useful and would like to see continued development, buy me a beverage by hitting the donate button at the top.
 
-If you would like to support the continue development of this and other projects, consider a recurring donation. Recurring donors are more likely to have requested features implemented. See the [funding](#funding) section.
-
 ## Contents
 
-1. [Features](#features)
+1. [How to use](#features)
 2. [Installation and Requirements](#installation-and-requirements)
 3. [Extension Settings](#extension-settings)
 3. [Known Issues](#known-issues)
@@ -59,21 +56,23 @@ To ensure dependency conflicts are not injected into the environment, specific v
 
 ## Extension Settings
 
-Currently no custom settings are supported, but this should change in the future.
+`python.profile.lineColorOn: true` - Turn the line colors on (`true`, default) or off (`false`).
+
+`python.profile.lineColor: "100,0,0"` - A 3-tuple RGB value. Default is `"100,0,0"`.
 
 ## Known Issues
 
 This is a very buggy beta. There are probably a lot of issues. Known issues are:
 1. Registering multiple functions with the same name with only show visualizations on one of the functions
-2. Registering multiple scripts will cause the function profile to be overwritten if a registered function occurs in both scripts.
-3. Visualization seem to disappear when multiple scripts are shown side by side when switching tabs.
-4. `pytest` files cannot be used as test scripts (probably).
-5. No other testing packages can be used either.
+2. Visualization seem to disappear when multiple scripts are shown side by side when switching tabs.
+3. `pytest` files cannot be used as test scripts (probably).
+4. No other testing packages can be used either.
+5. Running a script that also contains a profiling function, then switching to using a different script, returns no results.
+
 
 Possible issues based on the current code. If you run into these issues, please open an [issue](https://github.com/PerpetualHelp/python-line-profiler/issues):
 1. Import aliasing (`import numpy as np`) could cause issues.
 2. Relative imports with more than one level of namespace packages will likely cause problems.
-3. Changing environments without reloading the window will likely cause issues.
 
 ## Release Notes
 
